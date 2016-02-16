@@ -15,12 +15,30 @@ import java.io.PrintWriter;
 
 public class Scraper {
 	public static void main(String[] args) throws IOException {
-		Validate.isTrue(args.length == 1, "Por favor, proporciona una URL");
+		Validate.isTrue(args.length == 2, "Por favor, proporciona una URL y un número de página");
+		String url_base = "";
+		String url_base_imagen = "";
 		int pagina = suso.ImageDownloader.ImageDownloader
-				.parsearEntero(args[0]);
-		String url_base = "http://fuskator.com/page/";
+				.parsearEntero(args[1]);
+		
+		//Solo en Java 7 el switch soporta cadenas (String)
+		switch (args[0]) {
+		  case "Fuskator":
+		  case "fuskator":
+				url_base = "http://fuskator.com/page/";
+				url_base_imagen = "http://fuskator.com/full/";
+		        break;
+		  case "PostyourgirlsWS":
+		  case "postyourgirlsws":
+				url_base = "http://postyourgirls.ws/";
+				url_base_imagen = "http://www.postyourgirls.ws";
+		        break;
+		  default:
+			  System.out.println("Proporcione web y número de página");
+		}
 
-		for (; pagina > 1; pagina--) {
+		if(!url_base.isEmpty()) 
+		{for (; pagina >= 1; pagina--) {
 			String url = url_base + pagina+ "/";
 			System.out.println("Buscando en: " + url);
 
@@ -30,13 +48,14 @@ public class Scraper {
 			System.out.println(links.size() + " enlaces encontrados en " + url);
 			for (Element link : links) {
 				String ruta = link.attr("abs:href");
-				if (ruta.startsWith("http://fuskator.com/full/"))
+				if (ruta.startsWith(url_base_imagen))
 					escribir(ruta);
 				else
 					System.out.println("Ruta descartada: " + ruta);
 			}
 		}
 		System.out.println("FINAL");
+	}
 	}
  
 	private static void escribir(String link) {

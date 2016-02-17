@@ -55,6 +55,9 @@ public class Visualizador extends JFrame {
 		if ((imagen.getIconWidth() > d.getWidth()) || (imagen.getIconHeight() > d.getHeight())) {
 			float v_w = getValorEscalado(imagen.getIconWidth(), d.width);
 			float v_h = getValorEscalado(imagen.getIconHeight(), d.height);
+			//System.out.println(" d.width: " + d.width + " d.height: " +  d.height);
+			System.out.println(" imagen.getIconWidth(): " + imagen.getIconWidth() + " imagen.getIconHeight(): " +  imagen.getIconHeight());
+			System.out.println(" v_w: " + v_w + " v_h: " +  v_h);
 			return Disminuir(imagen, Math.min(v_w, v_h));
 		} else {
 			return imagen;
@@ -73,8 +76,9 @@ public class Visualizador extends JFrame {
 	}
 
 	/* devuelve el valor de escalado para redimensionar la imagen */
-	private float getValorEscalado(int a, int b) {
-		return Math.abs((a / new Float(b)) - 2f);
+	private float getValorEscalado(int tamanyo_imagen, int tamanyo_marco) {
+		//return Math.abs((a / new Float(b)) - 2f);
+		return Math.abs(tamanyo_marco / new Float(tamanyo_imagen));
 	}
 
 	public static void main(String H[]) throws InterruptedException {

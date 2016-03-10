@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -13,16 +14,13 @@ import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.GregorianCalendar;
 
 import javax.activation.MimetypesFileTypeMap;
 
+import org.apache.log4j.Logger;
 import org.apache.tika.Tika;
-
-import java.io.FileNotFoundException;
 
 public class ImageDownloader {
 
@@ -30,6 +28,8 @@ public class ImageDownloader {
 	final static String ficheroDeEntrada = "D:\\Borrame.txt";
 	static Visualizador visualiza_imagen;
 	static int contador_descargas_fallidas = 0;
+
+	final static Logger logger = Logger.getLogger(ImageDownloader.class);
 
 	public ImageDownloader() {
 		super();
@@ -67,12 +67,12 @@ public class ImageDownloader {
 					vecinitas_finalistas(directorio_base + "vecinitas_FHM\\");
 					break;
 				default:
-					System.out.println("Argumentos inválidos");
+					logger.info("Argumentos inválidos");
 					break;
 				}
 
 			image_downloader.visualiza_imagen.dispose();
-			System.out.println("FINAL");
+			logger.info("FINAL");
 		}
 	}
 
@@ -89,11 +89,11 @@ public class ImageDownloader {
 		String archivo = "";
 		String archivo_plano = "";
 		String url_base = "http://www.postyourgirls.ws/images/";
-		System.out.println("url_base " + url_base);
+		logger.info("url_base " + url_base);
 		for (int imagen = 1; imagen <= 10; imagen++) {
 			archivo = carpeta + "/image" + imagen + ".jpg";
 			archivo_plano = carpeta + "_image" + imagen + "_" + archivo_base + ".jpg";
-			System.out.println("archivo " + archivo);
+			logger.info("archivo " + archivo);
 			if (descargar_visualizar(url_base + archivo, directorio_destino + archivo_plano))
 				break;
 		}
@@ -104,25 +104,25 @@ public class ImageDownloader {
 		try {
 			resultado = Integer.parseInt(cadena_caracteres);
 		} catch (NumberFormatException e) {
-			System.out.println("No entiendo como numero " + cadena_caracteres);
+			logger.info("No entiendo como numero " + cadena_caracteres);
 		}
 		return resultado;
 	}
 
 	private static void usoArgumentos() {
-		System.out.println("Uso del programa:");
-		System.out.println("1. Fichero de entrada");
-		System.out.println("2. Vipchick");
-		System.out.println("3. PostYourGirls");
+		logger.info("Uso del programa:");
+		logger.info("1. Fichero de entrada");
+		logger.info("2. Vipchick");
+		logger.info("3. PostYourGirls");
 	}
 
 	private static boolean existeDirectorio(String directorio) {
 		File fRuta = new File(directorio);
 		boolean resultado = fRuta.isDirectory();
 		if (resultado)
-			System.out.println(directorio + ", es un directorio");
+			logger.error(directorio + ", es un directorio");
 		else
-			System.out.println(directorio + ", NO es un directorio válido");
+			logger.error("¡¡No puedo abrir el fichero!!");
 		return resultado;
 	}
 
@@ -144,7 +144,7 @@ public class ImageDownloader {
 		else if (origen.startsWith("http://www.postyourgirls.ws"))
 			postyourgirlsws(origen, directorio_base + "postyourgirlsws\\");
 		else
-			System.out.println("Linea no procesada: " + origen);
+			logger.info("Linea no procesada: " + origen);
 	}
 
 	private static boolean descargar_visualizar(String origen, String destino) {
@@ -152,7 +152,7 @@ public class ImageDownloader {
 		File archivo_destino = new File(destino);
 
 		if (archivo_destino.exists())
-			System.out.println("Ya existe el archivo " + destino);
+			logger.info("Ya existe el archivo " + destino);
 		else {
 			if (!descargar(origen, destino))
 				contador_descargas_fallidas++;
@@ -172,21 +172,22 @@ public class ImageDownloader {
 		final Tika tika = new Tika();
 		try {
 			File archivo_destino = new File(destino);
-			//Lo hemos comprobado antes, igual podemos quitarlo si no necesitamos el File
+			// Lo hemos comprobado antes, igual podemos quitarlo si no
+			// necesitamos el File
 			if (archivo_destino.exists())
-				System.out.println("Ya existe el archivo " + destino);
+				logger.info("Ya existe el archivo " + destino);
 			else {
 				File archivo_temporal = new File(destino + ".tmp");
 				// Cargamos un objeto URL con la direccion de la imagen que
 				// quieras descargar.
 				URL url = new URL(origen);
-				System.out.println("url: " + url);
+				logger.info("url: " + url);
 				// Abrimos una conexion a esa URL
 				URLConnection urlConnection = url.openConnection();
 				// Abrimos un stream de entrada para descargarnos la imagen como
 				// array de bytes
 				DataInputStream bufferentrada = new DataInputStream(urlConnection.getInputStream());
-				System.out.println("conectado...");
+				logger.info("conectado...");
 				int numBytes = 0;
 				byte[] byteBuff = new byte[2048];
 				// Stream de salida para guardar el fichero en el equipo local
@@ -198,13 +199,16 @@ public class ImageDownloader {
 				dOut.flush();
 				dOut.close();
 				bufferentrada.close();
-				System.out.println("Tamano archivo: " + archivo_temporal.length());
-				//System.out.println("MIME1: " + urlConnection.guessContentTypeFromStream(bufferentrada));
-				//System.out.println("MIME2: " + Files.probeContentType(archivo_temporal.toPath()));
+				logger.info("Tamano archivo: " + archivo_temporal.length());
+				// logger.info("MIME1: " +
+				// urlConnection.guessContentTypeFromStream(bufferentrada));
+				// logger.info("MIME2: " +
+				// Files.probeContentType(archivo_temporal.toPath()));
 				String mimetype = tika.detect(archivo_temporal);
-				System.out.println("MIME3: " + new MimetypesFileTypeMap().getContentType(archivo_temporal));
-				System.out.println("MIME4: " + mimetype);
-				//resultado = ((archivo_temporal.length() > 450) & !(archivo_temporal.length() == 75915));
+				logger.info("MIME3: " + new MimetypesFileTypeMap().getContentType(archivo_temporal));
+				logger.info("MIME4: " + mimetype);
+				// resultado = ((archivo_temporal.length() > 450) &
+				// !(archivo_temporal.length() == 75915));
 				resultado = (mimetype.contains("image"));
 				if (resultado)
 					archivo_temporal.renameTo(archivo_destino);
@@ -212,9 +216,9 @@ public class ImageDownloader {
 					archivo_temporal.delete();
 			}
 		} catch (FileNotFoundException e) {
-			System.out.println("Error archivo: " + e.getLocalizedMessage());
+			logger.info("Error archivo: " + e.getLocalizedMessage());
 		} catch (UnknownHostException e) {
-			System.out.println("No se ha encontrado el servidor: " + e.getLocalizedMessage());
+			logger.info("No se ha encontrado el servidor: " + e.getLocalizedMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -260,16 +264,16 @@ public class ImageDownloader {
 
 	private static boolean descargar_new(String origen, String destino) {
 		boolean resultado = false;
-		System.out.println(origen + " -*- " + destino);
+		logger.info(origen + " -*- " + destino);
 		File archivo_destino = new File(destino);
 
 		if (archivo_destino.exists())
-			System.out.println("Ya existe el archivo " + destino);
+			logger.info("Ya existe el archivo " + destino);
 		else {
 			try {
 				URL website = new URL(origen);
 				String tipo_fichero = website.openConnection().getContentType();
-				System.out.println("Tipo fichero: " + tipo_fichero);
+				logger.info("Tipo fichero: " + tipo_fichero);
 				if (!tipo_fichero.equalsIgnoreCase("text/html")) {
 					ReadableByteChannel rbc = Channels.newChannel(website.openStream());
 					FileOutputStream fos = new FileOutputStream(destino);
@@ -279,9 +283,9 @@ public class ImageDownloader {
 				}
 
 			} catch (FileNotFoundException e) {
-				System.out.println("Error archivo: " + e.getLocalizedMessage());
+				logger.info("Error archivo: " + e.getLocalizedMessage());
 			} catch (UnknownHostException e) {
-				System.out.println("No se ha encontrado el servidor: " + e.getLocalizedMessage());
+				logger.info("No se ha encontrado el servidor: " + e.getLocalizedMessage());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -302,8 +306,8 @@ public class ImageDownloader {
 					String archivo = ano + "_candidata_" + candidata + "_" + picstr + ".jpg";
 					String url_base = "http://especiales.fhm.es/vecinitas" + ano + "/" + candidata + "/normal/normal_"
 							+ picstr + ".jpg";
-					System.out.println("archivo " + archivo);
-					System.out.println("url_base " + url_base);
+					logger.info("archivo " + archivo);
+					logger.info("url_base " + url_base);
 					if (descargar_visualizar(url_base, directorio_destino + archivo))
 						break;
 				}
@@ -321,8 +325,8 @@ public class ImageDownloader {
 					String archivo = ano + "_finalista_" + candidata + "_" + picstr + ".jpg";
 					String url_base = "http://especiales.fhm.es/vecinitas" + ano + "/10finalistas/fotos/" + candidata
 							+ "_" + picstr + ".jpg";
-					System.out.println("archivo " + archivo);
-					System.out.println("url_base " + url_base);
+					logger.info("archivo " + archivo);
+					logger.info("url_base " + url_base);
 					if (descargar_visualizar(url_base, directorio_destino + archivo))
 						break;
 				}
@@ -334,8 +338,8 @@ public class ImageDownloader {
 		// Sabemos que el nombre del archivo son los últimos 13 caracteres
 		String archivo = direccion_hoy.substring(direccion_hoy.length() - 13);
 		String url_base = direccion_hoy.substring(0, direccion_hoy.length() - 13);
-		System.out.println("archivo " + archivo);
-		System.out.println("url_base " + url_base);
+		logger.info("archivo " + archivo);
+		logger.info("url_base " + url_base);
 		for (int ano = 2000; ano <= 2010; ano++) {
 			archivo = ano + archivo.substring(4);
 			if (descargar_visualizar(url_base + archivo, directorio_destino + archivo))
@@ -347,8 +351,8 @@ public class ImageDownloader {
 		// Sabemos que el nombre del archivo son los últimos 11 caracteres
 		String archivo = direccion_hoy.substring(direccion_hoy.length() - 11);
 		String url_base = direccion_hoy.substring(0, direccion_hoy.length() - 11);
-		System.out.println("archivo " + archivo);
-		System.out.println("url_base " + url_base);
+		logger.info("archivo " + archivo);
+		logger.info("url_base " + url_base);
 		DecimalFormat df = new DecimalFormat("00");
 		for (int ano = 0; ano <= 10; ano++) {
 			archivo = df.format(ano) + archivo.substring(2);
@@ -363,7 +367,7 @@ public class ImageDownloader {
 		String archivo = "";
 		String archivo_plano = "";
 		String url_base = "http://www.vipchick.com/a/";
-		System.out.println("url_base " + url_base);
+		logger.info("url_base " + url_base);
 		String[] meses = { "01-jan", "02-feb", "03-mar", "04-apr", "05-may", "06-jun", "07-jul", "08-aug", "09-sep",
 				"10-oct", "11-nov", "12-dec" };
 		for (int ano = 2008; ano <= 2009; ano++) {
@@ -377,7 +381,7 @@ public class ImageDownloader {
 						diaString = "0" + diaString;
 					archivo = mes_actual + "vipchick.com_" + diaString + ".jpg";
 					archivo_plano = mes_actual_plano + "vipchick.com_" + diaString + ".jpg";
-					System.out.println("archivo " + archivo);
+					logger.info("archivo " + archivo);
 					if (descargar_visualizar(url_base + archivo, directorio_destino + archivo_plano))
 						break;
 				}
@@ -423,7 +427,7 @@ public class ImageDownloader {
 		String url_base = "http://static.cdn.submityourex.com/" + archivo_base;
 		String archivo = "";
 		archivo_base = archivo_base.replace('/', '_').substring(9);
-		System.out.println("url_base " + url_base);
+		logger.info("url_base " + url_base);
 		for (int picnumber = 1; picnumber <= 20; picnumber++) {
 			archivo = "pic" + picnumber + ".jpg";
 			if (descargar_visualizar(url_base + archivo, directorio_destino + archivo_base + archivo))
@@ -473,7 +477,7 @@ public class ImageDownloader {
 		String url_base = "http://images.fuskator.com/large/" + archivo_base;
 		String archivo = "";
 		archivo_base = archivo_base.replace('/', '_');
-		System.out.println("url_base " + url_base);
+		logger.info("url_base " + url_base);
 		for (int picnumber = 1; picnumber <= 30; picnumber++) {
 			archivo = "_" + picnumber + ".jpg";
 			if (descargar_visualizar(url_base + archivo, directorio_destino + archivo_base + archivo))
@@ -486,7 +490,7 @@ public class ImageDownloader {
 		// http://www.postyourgirls.com/abr10/26/05/10.jpg
 		// Nuevo: http://postyourgirls.com/enero14/20/02/01.jpg
 		String url_base = "http://www.postyourexgirls.com/";
-		System.out.println("url_base: " + url_base);
+		logger.info("url_base: " + url_base);
 
 		// String[] meses = {"ene", "feb", "mar", "abr", "may", "jun", "jul",
 		// "ago", "sep", "oct", "nov", "dic" };
@@ -515,7 +519,7 @@ public class ImageDownloader {
 					// directorio);
 					// f_directorio.mkdirs();
 
-					System.out.println("directorio " + directorio);
+					logger.info("directorio " + directorio);
 
 					for (int foto = 1; foto < 15; foto++) {
 						String archivo = directorio + intToFormatString(foto, 2) + ".jpg";
@@ -524,8 +528,8 @@ public class ImageDownloader {
 							break;
 						// descargar
 						// (url_base+archivo,directorio_destino+archivo_plano);
-						// System.out.println("Origen: " + url_base + archivo);
-						// System.out.println("Destino:" + directorio_destino +
+						// logger.info("Origen: " + url_base + archivo);
+						// logger.info("Destino:" + directorio_destino +
 						// archivo);
 					}
 				}
@@ -558,7 +562,8 @@ public class ImageDownloader {
 		} catch (IOException e) {
 			// aquí se pondrá el tratamiento de errores por si no se puede leer
 			// (por ejemplo si el fichero no existe)
-			System.out.println("¡¡No puedo abrir el fichero!!");
+			logger.info("¡¡No puedo abrir el fichero!!");
+			logger.error("¡¡No puedo abrir el fichero!!");
 		}
 	}
 }

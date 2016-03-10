@@ -1,17 +1,22 @@
 package suso.ImageDownloader;
 
-import javax.swing.*;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Rectangle;
-import java.awt.event.*;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
+import org.apache.log4j.Logger;
 
 public class Visualizador extends JFrame {
 
+	final static Logger logger = Logger.getLogger(Visualizador.class);
 	static ImageIcon imagen;
 	JLabel etiqueta = new JLabel(imagen);
 
@@ -55,9 +60,9 @@ public class Visualizador extends JFrame {
 		if ((imagen.getIconWidth() > d.getWidth()) || (imagen.getIconHeight() > d.getHeight())) {
 			float v_w = getValorEscalado(imagen.getIconWidth(), d.width);
 			float v_h = getValorEscalado(imagen.getIconHeight(), d.height);
-			//System.out.println(" d.width: " + d.width + " d.height: " +  d.height);
-			System.out.println(" imagen.getIconWidth(): " + imagen.getIconWidth() + " imagen.getIconHeight(): " +  imagen.getIconHeight());
-			System.out.println(" v_w: " + v_w + " v_h: " +  v_h);
+			//logger.info(" d.width: " + d.width + " d.height: " +  d.height);
+			logger.info(" imagen.getIconWidth(): " + imagen.getIconWidth() + " imagen.getIconHeight(): " +  imagen.getIconHeight());
+			logger.info(" v_w: " + v_w + " v_h: " +  v_h);
 			return Disminuir(imagen, Math.min(v_w, v_h));
 		} else {
 			return imagen;

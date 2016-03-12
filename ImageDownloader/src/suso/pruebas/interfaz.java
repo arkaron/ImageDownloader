@@ -1,4 +1,4 @@
-package suso.ImageDownloader;
+package suso.pruebas;
 
 public class interfaz extends javax.swing.JFrame {
     Galeria Mi_Galeria = new Galeria();

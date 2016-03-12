@@ -1,4 +1,4 @@
-package suso.ImageDownloader;
+package suso.pruebas;
 
 import java.awt.Dimension;
 import java.awt.Image;

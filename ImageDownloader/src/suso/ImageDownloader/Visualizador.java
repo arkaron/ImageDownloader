@@ -39,12 +39,12 @@ public class Visualizador extends JFrame {
 		 */
 
 		// AGREGAMOS LA ETIQUETA QUE CONTIENE LA IMAGEN AL FRAME
-		getContentPane().add(etiqueta);
+		this.getContentPane().add(etiqueta);
 
 		// ESTABLECEMOS EL TAMAÑO DEL FRAME
 		//this.setSize(rect.width, rect.height - 50);
 		//this.show();
-		getContentPane().setBackground(Color.DARK_GRAY);
+		this.getContentPane().setBackground(Color.DARK_GRAY);
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		this.setUndecorated(true);
 		this.setVisible(true);

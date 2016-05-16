@@ -30,11 +30,39 @@ public class ImageDownloader {
 	static int contador_descargas_fallidas = 0;
 
 	final static Logger logger = Logger.getLogger(ImageDownloader.class);
-
+	
 	public ImageDownloader() {
 		super();
 		visualiza_imagen = new Visualizador();
 		visualiza_imagen.show();
+	}
+	
+	public void procesar (String ficheroDeEntrada, String directorio_base, int fuente, int offset) {
+		
+		if (existeDirectorio(directorio_base))
+			switch (fuente) {
+			case 1:
+				procesarFicheroEntrada(ficheroDeEntrada, directorio_base);
+				break;
+			case 2:
+				vipchick(directorio_base);
+				break;
+			case 3:
+				postyourgirls(directorio_base + "postyourgirls\\", offset);
+				break;
+			case 4:
+				vecinitas_candidatas(directorio_base + "vecinitas_FHM\\");
+				break;
+			case 5:
+				vecinitas_finalistas(directorio_base + "vecinitas_FHM\\");
+				break;
+			default:
+				logger.info("Argumentos inválidos");
+				break;
+			}
+
+		this.visualiza_imagen.dispose();
+		logger.info("FINAL");
 	}
 
 	public static void main(String[] args) {
@@ -48,31 +76,7 @@ public class ImageDownloader {
 			final int offset = parsearEntero(args[2]);
 
 			ImageDownloader image_downloader = new ImageDownloader();
-
-			if (existeDirectorio(directorio_base))
-				switch (fuente) {
-				case 1:
-					image_downloader.procesarFicheroEntrada(ficheroDeEntrada, directorio_base);
-					break;
-				case 2:
-					vipchick(directorio_base);
-					break;
-				case 3:
-					postyourgirls(directorio_base + "postyourgirls\\", offset);
-					break;
-				case 4:
-					vecinitas_candidatas(directorio_base + "vecinitas_FHM\\");
-					break;
-				case 5:
-					vecinitas_finalistas(directorio_base + "vecinitas_FHM\\");
-					break;
-				default:
-					logger.info("Argumentos inválidos");
-					break;
-				}
-
-			image_downloader.visualiza_imagen.dispose();
-			logger.info("FINAL");
+			image_downloader.procesar(ficheroDeEntrada, directorio_base, fuente, offset);
 		}
 	}
 
@@ -546,7 +550,7 @@ public class ImageDownloader {
 		return resultado;
 	}
 
-	private static void procesarFicheroEntrada(String fichero_entrada, String directorio_base) {
+	public static void procesarFicheroEntrada(String fichero_entrada, String directorio_base) {
 		try {
 			// así se declara el fichero para leer de él
 			BufferedReader fichero = new BufferedReader(new FileReader(fichero_entrada));
